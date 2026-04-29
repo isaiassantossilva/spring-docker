@@ -1,25 +1,38 @@
+# syntax=docker/dockerfile:1.7
+
 # --- Stage 1: Build ---
 FROM gradle:9.4.1-jdk25-alpine AS build
 
 WORKDIR /app
 
-COPY build.gradle.kts settings.gradle.kts ./
+COPY gradlew settings.gradle.kts build.gradle.kts ./
+COPY gradle ./gradle
+
+RUN --mount=type=cache,target=/root/.gradle \
+    ./gradlew --no-daemon dependencies
+
 COPY src ./src
 
-RUN gradle clean build -x test
+RUN --mount=type=cache,target=/root/.gradle \
+    ./gradlew --no-daemon clean bootJar -x test
 
 # --- Stage 2: Runtime ---
 FROM eclipse-temurin:25-jre-alpine
 
-RUN addgroup -S spring && adduser -S spring -G spring
+RUN apk add --no-cache curl \
+    && addgroup -S spring \
+    && adduser -S spring -G spring
 
 WORKDIR /home/spring/app
 
-COPY --from=build /app/build/libs/app.jar ./app.jar
+COPY --from=build /app/build/libs/*.jar ./app.jar
 
 RUN chown -R spring:spring /home/spring
 USER spring:spring
 
 EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -fsS http://localhost:8080/actuator/health | grep -q '"status":"UP"'
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
