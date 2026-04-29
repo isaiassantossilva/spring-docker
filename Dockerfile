@@ -26,7 +26,7 @@ WORKDIR /home/spring/app
 
 COPY --from=build /app/build/libs/*.jar ./app.jar
 
-ENV JAVA_TOOL_OPTIONS="-Xms256m -Xmx512m -XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError -XX:+UseContainerSupport"
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError"
 
 RUN chown -R spring:spring /home/spring
 USER spring:spring
