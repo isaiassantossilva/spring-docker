@@ -7,10 +7,6 @@ WORKDIR /app
 
 COPY gradlew settings.gradle.kts build.gradle.kts ./
 COPY gradle ./gradle
-
-RUN --mount=type=cache,target=/root/.gradle \
-    ./gradlew --no-daemon dependencies
-
 COPY src ./src
 
 RUN --mount=type=cache,target=/root/.gradle \
