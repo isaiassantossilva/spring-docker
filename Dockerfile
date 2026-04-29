@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 
 # --- Stage 1: Build ---
-FROM gradle:9.4.1-jdk25-alpine AS build
+FROM eclipse-temurin:25-jdk-alpine AS build
 
 WORKDIR /app
 
