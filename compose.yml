@@ -1,7 +1,7 @@
 
 services:
   app:
-    restart: always
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile
@@ -17,10 +17,10 @@ services:
           cpus: '1'
           memory: '1GB'
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
       interval: 30s
-      timeout: 10s
-      start_period: 5s
+      timeout: 5s
+      start_period: 30s
       retries: 3
 
 networks:

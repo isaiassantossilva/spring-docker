@@ -19,8 +19,7 @@ RUN --mount=type=cache,target=/root/.gradle \
 # --- Stage 2: Runtime ---
 FROM eclipse-temurin:25-jre-alpine
 
-RUN apk add --no-cache curl \
-    && addgroup -S spring \
+RUN addgroup -S spring \
     && adduser -S spring -G spring
 
 WORKDIR /home/spring/app
@@ -35,6 +34,6 @@ USER spring:spring
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD curl -fsS http://localhost:8080/actuator/health | grep -q '"status":"UP"'
+    CMD wget -qO- http://localhost:8080/actuator/health | grep -q '"status":"UP"'
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
