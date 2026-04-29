@@ -27,7 +27,7 @@ WORKDIR /home/spring/app
 
 COPY --from=build /app/build/libs/*.jar ./app.jar
 
-ENV JAVA_TOOL_OPTIONS: "-Xms256m -Xmx512m -XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError -XX:+UseContainerSupport"
+ENV JAVA_TOOL_OPTIONS="-Xms256m -Xmx512m -XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError -XX:+UseContainerSupport"
 
 RUN chown -R spring:spring /home/spring
 USER spring:spring
@@ -37,4 +37,4 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
     CMD curl -fsS http://localhost:8080/actuator/health | grep -q '"status":"UP"'
 
-ENTRYPOINT ["sh", "-c", "java -jar app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
