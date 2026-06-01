@@ -7,6 +7,10 @@ WORKDIR /app
 
 COPY gradlew settings.gradle.kts build.gradle.kts ./
 COPY gradle ./gradle
+
+RUN --mount=type=cache,target=/root/.gradle \
+    ./gradlew dependencies --no-daemon
+
 COPY src ./src
 
 RUN --mount=type=cache,target=/root/.gradle \
@@ -22,8 +26,6 @@ WORKDIR /home/spring/app
 
 COPY --from=build /app/build/libs/*.jar ./app.jar
 
-ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError"
-
 RUN chown -R spring:spring /home/spring
 USER spring:spring
 
@@ -31,5 +33,7 @@ EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
     CMD wget -qO- http://localhost:8080/actuator/health | grep -q '"status":"UP"'
+
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError"
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
