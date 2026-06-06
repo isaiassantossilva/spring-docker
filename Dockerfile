@@ -1,20 +1,17 @@
 # syntax=docker/dockerfile:1.7
 
 # --- Stage 1: Build ---
-FROM eclipse-temurin:25-jdk-alpine AS build
+FROM gradle:9.5.1-jdk25-noble AS build
 
 WORKDIR /app
 
-COPY gradlew settings.gradle.kts build.gradle.kts ./
-COPY gradle ./gradle
+COPY settings.gradle.kts build.gradle.kts ./
 
-RUN --mount=type=cache,target=/root/.gradle \
-    ./gradlew dependencies --no-daemon
+RUN gradle --no-daemon dependencies
 
 COPY src ./src
 
-RUN --mount=type=cache,target=/root/.gradle \
-    ./gradlew --no-daemon clean bootJar -x test
+RUN gradle --no-daemon clean bootJar -x test
 
 # --- Stage 2: Runtime ---
 FROM eclipse-temurin:25-jre-alpine
